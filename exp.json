@@ -1,0 +1,21 @@
+{
+  "name": "identifythis2",
+  "description": "No description",
+  "slug": "identifythis2",
+  "privacy": "unlisted",
+  "sdkVersion": "15.0.0",
+  "version": "1.0.0",
+  "orientation": "portrait",
+  "primaryColor": "#cccccc",
+  "icon": "./assets/icons/logo.png",
+  "loading": {
+    "icon": "./assets/icons/logo.png",
+    "hideExponentText": false
+  },
+  "packagerOpts": {
+    "assetExts": ["ttf"]
+  },
+  "ios": {
+    "supportsTablet": true
+  }
+}
