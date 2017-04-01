@@ -24,10 +24,8 @@ import {
 import createUUID from '../utilities/createUUID'
 import { Spinner } from 'native-base';
 import Colors from '../constants/Colors';
-import { whiteList, blackList } from '../constants/Entities';
+import { whiteList, blackList, DESCRIPTOR } from '../constants/Entities';
 import { StyledText } from '../components/StyledText'
-
-const DESCRIPTOR = "Breed";
 
 const VISION_API_KEY = "AIzaSyCRxQTJIT6psgnQGpeVc4lD2vNh2a7p8Dc"
 
@@ -98,12 +96,12 @@ export default class ScanScreen extends React.Component {
 
     if(stats){
       const shareMessage = <Text key="shareMessage" style={{color: "#AAA", fontSize: 8, textAlign: "center"}}>tap to share</Text>
-      const mainEntity = <StyledText key="mainEntity" style={{marginBottom: 20, fontSize: 24, textAlign: "center", color: "white"}}>
+      const mainEntity = <StyledText key="mainEntity" style={{marginBottom: 10, fontSize: 24, textAlign: "center", color: "white"}}>
                       {stats.mainEntity}
                     </StyledText>;
       const headerSection = (<View key={"headerSection" + index} style={{flexDirection: "row"}}>
-                <Text key="headerSectionIndex" style={{textAlign: "left", fontSize: 10, color: "#AAA"}}>Rank</Text>
-                <Text key="headerSectionDescription" style={{flex: 1, textAlign: "center",  fontSize: 10, color: "#AAA"}}>{DESCRIPTOR}</Text>
+                <Text key="headerSectionIndex" style={{textAlign: "left", fontSize: 10, color: "#AAA", marginRight: 10}}> # </Text>
+                <Text key="headerSectionDescription" style={{flex: 1, textAlign: "left",  fontSize: 10, color: "#AAA"}}>{DESCRIPTOR}</Text>
                 <Text key="headerSectionScore" style={{flex: 1, textAlign: "right",  fontSize: 10, color: "#AAA"}}>Confidence</Text>
               </View>);
 
@@ -111,20 +109,21 @@ export default class ScanScreen extends React.Component {
           return (<View key={"entityList" + entity.rank} style={{flexDirection: "row"}}>
                     <Text key="index" style={{color: "white", marginRight: 10}}>{entity.rank}:</Text>
                     <Text key="description" style={{color: "white", flex: 1}}>{entity.description}</Text>
-                    <Text key="score" style={{color: "#DDD"}}>{entity.score.toFixed(2)}</Text>
+                    <Text key="score" style={{color: "#DDD", marginLeft: 10}}>{entity.confidence}%</Text>
                   </View>);
       });
 
       entitiesInfo = mainEntity ?
-        <View style={{width: 200, paddingTop: 20}}>
+        <View style={{width: 230, paddingTop: 5}}>
+
+          {shareMessage}
           {mainEntity}
           {headerSection}
           {succefulEntitiesList}
-          {shareMessage}
         </View> :
         <View  style={{flex: 1, padding: 20, justifyContent: "center", alignItems: "center"}}>
           <Text style={{fontSize: 18, textAlign: "center", color: "white"}}>
-            Unable to identify {DESCRIPTOR.toLowerCase()}. Try again with a clearer picture.
+            Unable to identify {Descriptor.toLowerCase()}. Try again with a clearer picture.
           </Text>
         </View>
     }
@@ -216,7 +215,7 @@ export default class ScanScreen extends React.Component {
   }
 
   _parseStats = (entities) => {
-    let calculatedStats;
+    let calculatedStats, totalScore = 0;
     let index = 1;
     entities.forEach((entity) => {
       if(whiteList.indexOf(entity.description.replace(/dog/ig,"").trim()) >= 0 &&
@@ -233,6 +232,11 @@ export default class ScanScreen extends React.Component {
         });
       }
     });
+    if(calculatedStats.entities) {
+      calculatedStats.entities.forEach((stat) => totalScore += stat.score || 0);
+      calculatedStats.entities.forEach((stat) => stat.confidence = (((stat.score || 0) / totalScore) * 100).toFixed(2));
+    }
+
     return calculatedStats;
   }
 

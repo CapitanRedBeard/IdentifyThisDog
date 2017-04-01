@@ -1,7 +1,7 @@
 {
   "name": "identifythis2",
-  "version": "0.0.1",
-  "description": "Hello Expo!",
+  "version": "0.0.3p",
+  "description": "Identify any breed of dog using machine learning. Upload any photo of a dog from any angle and we will identify up to five possible breakdowns of the dog with varying confidence.",
   "author": null,
   "main": "main.js",
   "scripts": {
@@ -12,7 +12,6 @@
   },
   "dependencies": {
     "@expo/ex-navigation": "~2.9.2",
-    "@expo/samples": "~1.0.3",
     "expo": "^15.0.2",
     "react": "~15.4.0",
     "react-native": "https://github.com/exponent/react-native/archive/sdk-15.0.0.tar.gz"

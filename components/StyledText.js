@@ -25,7 +25,7 @@ export class StyledText extends React.Component {
     return (
       <Animated.Text
         {...this.props}
-        style={[this.props.style, {fontFamily: 'space-mono', opacity: this._animationValue, marginTop: translate}]}
+        style={[this.props.style, {fontFamily: 'Marker Felt', opacity: this._animationValue, marginTop: translate}]}
       />
     );
   }

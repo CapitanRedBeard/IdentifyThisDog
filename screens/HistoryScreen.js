@@ -1,6 +1,7 @@
 import React from 'react';
 import { ListView, StyleSheet, AsyncStorage, Text, Image, View, TouchableOpacity } from 'react-native';
 import { Spinner } from 'native-base';
+import { LinearGradient } from 'expo';
 import Colors from '../constants/Colors';
 
 class Row extends React.Component {
@@ -11,7 +12,7 @@ class Row extends React.Component {
       statsComponent.push(<Text key="main" style={styles.mainEntity}>{stats.mainEntity}</Text>)
       stats.entities.forEach((ent) => {
         statsComponent.push(<Text key={`entity${ent.rank}`}
-          style={styles.description}>{`${ent.rank}. ${ent.description} ${ent.score}`}</Text>)
+          style={styles.description}>{`${ent.confidence}% ${ent.description}`}</Text>)
       })
     }else {
       statsComponent.push(<Text key="main" style={styles.mainEntity}>Could not identify</Text>)
@@ -72,7 +73,7 @@ export default class HistoryScreen extends React.Component {
     })
   }
 
-  render() {
+  _renderList = () => {
     const { rowData, loading } = this.state;
     console.log("listItems: ", rowData)
     const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
@@ -84,42 +85,47 @@ export default class HistoryScreen extends React.Component {
                 <TouchableOpacity key="clear"
                   onPress={this._clearHistory}
                   style={styles.clearWrapper}>
-                  <Text style={styles.clearText}>
-                    Clear
-                  </Text>
+                  <Text style={styles.clearText}>Clear</Text>
                 </TouchableOpacity>
                 <ListView
                     enableEmptySections={true}
                     dataSource={dataSource}
-                    renderRow={(data) => <Row {...data} />}
-                    renderSeparator={(sID, rID) => <View key={rID} style={styles.separator} />}/>
+                    renderRow={(data) => <Row {...data} />}/>
                 </View>);
 
     } else {
       return <Text style={styles.placeholder}>No available history</Text>
     }
-    // return !loading ? (listItems ? <FlatList
-    //           data={[{key: 'a'}, {key: 'b'}]}
-    //           renderItem={({item}) => <Text>{item.key}</Text>}/> :
-    //        <Spinner color={Colors.backgroundGradientColors[0]}/>) :
-    //        <Text>No available history</Text>;
+  }
 
+  render() {
+    return (
+      <LinearGradient start={[0.0, 0.15]} end={[0.3, 1.0]}
+        colors={Colors.backgroundGradientColors} style={{flex: 1}}>
+        { this._renderList() }
+     </LinearGradient>
+    )
   }
 }
 
 const styles = StyleSheet.create({
-  separator: {
-    flex: 1,
-    height: StyleSheet.hairlineWidth,
-    backgroundColor: '#8E8E8E',
-  },
   container: {
     flex: 1,
+    backgroundColor: "white",
+    borderRadius: 3,
+    elevation: 4,
+    shadowColor: 'rgba(0,0,0,1)',
+    shadowOpacity: 0.2,
+    shadowOffset: {width: 4, height: 4},
+    shadowRadius: 5,
     padding: 12,
     flexDirection: 'row',
     alignItems: 'center',
+    margin: 20,
+    marginBottom: 0
   },
   mainEntity: {
+    backgroundColor: "transparent",
     marginLeft: 12,
     fontSize: 20,
   },
@@ -132,17 +138,20 @@ const styles = StyleSheet.create({
     alignItems: "center"
   },
   clearText: {
-    color: Colors.linkColor,
+    color: "white",
     backgroundColor: "transparent",
-    fontSize: 16,
+    fontSize: 20,
     padding: 5
   },
   placeholder: {
     backgroundColor: "transparent",
-    alignItems: "center",
-    fontSize: 16
+    textAlign: "center",
+    fontSize: 20,
+    color: "white",
+    padding: 20
   },
   description: {
+    backgroundColor: "transparent",
     color: "#AAA",
     marginLeft: 16,
     fontSize: 12,

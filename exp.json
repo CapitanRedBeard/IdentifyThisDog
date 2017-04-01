@@ -1,6 +1,6 @@
 {
-  "name": "identifythis2",
-  "description": "No description",
+  "name": "Identify This Dog",
+  "description": "Using machine learning, quickly identify any dog from any angle.",
   "slug": "identifythis2",
   "privacy": "unlisted",
   "sdkVersion": "15.0.0",
@@ -16,6 +16,7 @@
     "assetExts": ["ttf"]
   },
   "ios": {
-    "supportsTablet": true
+    "supportsTablet": true,
+    "bundleIdentifier": "co.this.identify"
   }
 }
