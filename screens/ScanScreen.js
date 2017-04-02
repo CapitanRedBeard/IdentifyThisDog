@@ -1,6 +1,7 @@
 import Expo, {
   ImagePicker,
-  LinearGradient
+  LinearGradient,
+  FacebookAds
 } from 'expo';
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
@@ -52,6 +53,28 @@ export default class ScanScreen extends React.Component {
 
   componentDidMount() {
     this._fadeInAnimation.start();
+    FacebookAds.AdSettings.addTestDevice(FacebookAds.AdSettings.currentDeviceHash);
+  }
+
+  _handleBannerAdPress = () => {
+    console.warn('Banner ad pressed');
+  };
+
+  _handleBannerAdError = () => {
+    console.warn('An error occurred while loading banner ad');
+  };
+
+  _renderFacebookBannerAd = () => {
+    return (
+      <FacebookAds.BannerView
+          key="homeAd"
+          type="standard"
+          placementId="235148286954512_235148930287781"
+          onPress={this._handleBannerAdPress}
+          onError={this._handleBannerAdError}
+          style={{alignSelf: "stretch", marginBottom: 20}}
+        />
+    )
   }
 
   render() {
@@ -59,12 +82,13 @@ export default class ScanScreen extends React.Component {
     return (
         <LinearGradient start={[0.0, 0.15]} end={[0.3, 1.0]}
           colors={Colors.backgroundGradientColors}
-          style={{flex: 1, alignItems: 'center', paddingTop: 50}}>
-
+          style={{flex: 1, alignItems: 'center'}}>
+          { this._renderFacebookBannerAd() }
           { image ? this._renderImage(image) : this._renderPlaceholder() }
           { this._maybeRenderUploadingOverlay() }
-
-         <StatusBar barStyle="default" />
+        {
+          //  <StatusBar barStyle="default" />
+        }
        </LinearGradient>
      );
   }
@@ -357,7 +381,7 @@ export default class ScanScreen extends React.Component {
     });
     console.log("_saveInHistory", createUUID(), historyItem);
     try {
-      await AsyncStorage.setItem(createUUID(), historyItem);
+      await AsyncStorage.setItem(`history.${createUUID()}`, historyItem);
     } catch (error) {
       console.warn("Unable to save to history")
     }

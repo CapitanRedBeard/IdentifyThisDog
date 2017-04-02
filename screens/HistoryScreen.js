@@ -1,8 +1,19 @@
 import React from 'react';
-import { ListView, StyleSheet, AsyncStorage, Text, Image, View, TouchableOpacity } from 'react-native';
+import {
+  ListView,
+  StyleSheet,
+  AsyncStorage,
+  Text,
+  Image,
+  View,
+  TouchableOpacity,
+  Alert,
+} from 'react-native';
+import AppLink from 'react-native-app-link';
 import { Spinner } from 'native-base';
-import { LinearGradient } from 'expo';
+import { LinearGradient, FacebookAds } from 'expo';
 import Colors from '../constants/Colors';
+import { APP_ID_IOS, APP_ID_ANDROID } from '../constants/Entities'
 
 class Row extends React.Component {
   render() {
@@ -29,15 +40,34 @@ class Row extends React.Component {
 }
 
 export default class HistoryScreen extends React.Component {
-  static route = {
-    navigationBar: {
-      title: 'History',
-    },
-  };
-
   state = {
     rowData: null,
     loading: true
+  }
+
+  componentDidMount() {
+    FacebookAds.AdSettings.addTestDevice(FacebookAds.AdSettings.currentDeviceHash);
+  }
+
+  _handleBannerAdPress = () => {
+    console.warn('Banner ad pressed');
+  };
+
+  _handleBannerAdError = () => {
+    console.warn('An error occurred while loading banner ad');
+  };
+
+  _renderFacebookBannerAd = () => {
+    return (
+      <FacebookAds.BannerView
+          key="historyAd"
+          type="standard"
+          placementId="235148286954512_235588606910480"
+          onPress={this._handleBannerAdPress}
+          onError={this._handleBannerAdError}
+          style={{alignSelf: "stretch", marginBottom: 20}}
+        />
+    )
   }
 
   componentWillMount() {
@@ -48,13 +78,36 @@ export default class HistoryScreen extends React.Component {
   componentWillReceiveProps(nextProps) {
     console.log("componentWillReceiveProps")
     this._getPersistentData();
+    this._promptReview();
+  }
+
+  _promptReview = () => {
+    console.log("_promptReview")
+    AsyncStorage.getItem("rateRequested", (err, result) => {
+      if(!result) {
+        Alert.alert('Would you like to help out this app by rating it?',
+          null,
+          [
+            {text: 'Sure!', onPress: () => {
+              AppLink.openInStore(APP_ID_IOS, APP_ID_ANDROID);
+            }},
+            {text: 'Nope'}
+          ]
+        );
+        AsyncStorage.setItem("rateRequested", "set", (e, r) => {});
+      }
+    });
   }
 
   _getPersistentData = () => {
     AsyncStorage.getAllKeys((err, keys) => {
       AsyncStorage.multiGet(keys, (err, stores) => {
-        rowData = stores.map((result, i, store) => {
-          return JSON.parse(result[1]);
+        let rowData = [];
+        stores.forEach((result, i, store) => {
+          console.log("Result: ", result[0])
+          if(result[0].includes("history")) {
+            rowData.push(JSON.parse(result[1]));
+          }
         });
         rowData = rowData.length ? rowData : null;
         this.setState({loading: false, rowData: rowData})
@@ -64,12 +117,25 @@ export default class HistoryScreen extends React.Component {
 
   _clearHistory = async () => {
     this.setState({loading: true, rowData: null}, () => {
-      AsyncStorage.clear((err) => {
-        if(err) {
-          console.warn(err)
-        }
+      AsyncStorage.getAllKeys((err, keys) => {
+        keys.forEach((key, val) => {
+          console.log("Key, val: ", key, val);
+          if(key.includes("history")) {
+            AsyncStorage.removeItem(key, (err) => {
+              if(err) {
+                console.warn(err)
+              }
+            })
+          }
+        })
         this.setState({loading: false})
-      })
+      });
+      // AsyncStorage.clear((err) => {
+      //   if(err) {
+      //     console.warn(err)
+      //   }
+      //   this.setState({loading: false})
+      // })
     })
   }
 
@@ -102,6 +168,7 @@ export default class HistoryScreen extends React.Component {
     return (
       <LinearGradient start={[0.0, 0.15]} end={[0.3, 1.0]}
         colors={Colors.backgroundGradientColors} style={{flex: 1}}>
+        { this._renderFacebookBannerAd() }
         { this._renderList() }
      </LinearGradient>
     )
