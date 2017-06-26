@@ -13,6 +13,7 @@ class AppContainer extends React.Component {
   };
 
   componentWillMount() {
+    // console.disableYellowBox = true;
     this._loadAssetsAsync();
   }
 

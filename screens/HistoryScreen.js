@@ -13,13 +13,13 @@ import AppLink from 'react-native-app-link';
 import { Spinner } from 'native-base';
 import { LinearGradient, FacebookAds } from 'expo';
 import Colors from '../constants/Colors';
-import { APP_ID_IOS, APP_ID_ANDROID } from '../constants/Entities'
+import { APP_ID_IOS, APP_ID_ANDROID, AD_IDS } from '../constants/Entities'
 
 class Row extends React.Component {
   render() {
     const { image, stats } = this.props;
     let statsComponent = [];
-    if(stats) {
+    if(stats && stats.entities) {
       statsComponent.push(<Text key="main" style={styles.mainEntity}>{stats.mainEntity}</Text>)
       stats.entities.forEach((ent) => {
         statsComponent.push(<Text key={`entity${ent.rank}`}
@@ -62,7 +62,7 @@ export default class HistoryScreen extends React.Component {
       <FacebookAds.BannerView
           key="historyAd"
           type="standard"
-          placementId="235148286954512_235588606910480"
+          placementId={AD_IDS.history}
           onPress={this._handleBannerAdPress}
           onError={this._handleBannerAdError}
           style={{alignSelf: "stretch", marginBottom: 20}}
@@ -71,18 +71,15 @@ export default class HistoryScreen extends React.Component {
   }
 
   componentWillMount() {
-    console.log("componentWillMount")
     this._getPersistentData();
   }
 
   componentWillReceiveProps(nextProps) {
-    console.log("componentWillReceiveProps")
     this._getPersistentData();
     this._promptReview();
   }
 
   _promptReview = () => {
-    console.log("_promptReview")
     AsyncStorage.getItem("rateRequested", (err, result) => {
       if(!result) {
         Alert.alert('Would you like to help out this app by rating it?',
@@ -104,7 +101,6 @@ export default class HistoryScreen extends React.Component {
       AsyncStorage.multiGet(keys, (err, stores) => {
         let rowData = [];
         stores.forEach((result, i, store) => {
-          console.log("Result: ", result[0])
           if(result[0].includes("history")) {
             rowData.push(JSON.parse(result[1]));
           }
@@ -119,7 +115,6 @@ export default class HistoryScreen extends React.Component {
     this.setState({loading: true, rowData: null}, () => {
       AsyncStorage.getAllKeys((err, keys) => {
         keys.forEach((key, val) => {
-          console.log("Key, val: ", key, val);
           if(key.includes("history")) {
             AsyncStorage.removeItem(key, (err) => {
               if(err) {

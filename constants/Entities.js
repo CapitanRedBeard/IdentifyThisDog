@@ -2,4 +2,9 @@ export const whiteList = "Affenpinscher|Afghan Hound|Kuchi|Aidi|Airedale Terrier
 export const blackList = ["dog", "puppy", "pet", "coat", "cat"];
 export const DESCRIPTOR = "Breed";
 export const APP_ID_ANDROID = "id529379082";
-export const APP_ID_IOS = "me.lyft.android";
+export const APP_ID_IOS = "1221437805";
+
+export const AD_IDS = {
+  home: "235148286954512_235148930287781",
+  history: "235148286954512_235588606910480"
+};

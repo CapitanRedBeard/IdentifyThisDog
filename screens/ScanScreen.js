@@ -25,7 +25,7 @@ import {
 import createUUID from '../utilities/createUUID'
 import { Spinner } from 'native-base';
 import Colors from '../constants/Colors';
-import { whiteList, blackList, DESCRIPTOR } from '../constants/Entities';
+import { whiteList, blackList, DESCRIPTOR, AD_IDS } from '../constants/Entities';
 import { StyledText } from '../components/StyledText'
 
 const VISION_API_KEY = "AIzaSyCRxQTJIT6psgnQGpeVc4lD2vNh2a7p8Dc"
@@ -57,11 +57,11 @@ export default class ScanScreen extends React.Component {
   }
 
   _handleBannerAdPress = () => {
-    console.warn('Banner ad pressed');
+    console.log('Banner ad pressed');
   };
 
   _handleBannerAdError = () => {
-    console.warn('An error occurred while loading banner ad');
+    console.log('An error occurred while loading banner ad');
   };
 
   _renderFacebookBannerAd = () => {
@@ -69,7 +69,7 @@ export default class ScanScreen extends React.Component {
       <FacebookAds.BannerView
           key="homeAd"
           type="standard"
-          placementId="235148286954512_235148930287781"
+          placementId={AD_IDS.home}
           onPress={this._handleBannerAdPress}
           onError={this._handleBannerAdError}
           style={{alignSelf: "stretch", marginBottom: 20}}
@@ -111,7 +111,7 @@ export default class ScanScreen extends React.Component {
     const { stats } = this.state;
     let infoDrawerHeight = this._infoDrawer.interpolate({
         inputRange: [0, 1],
-        outputRange: [0, 250],
+        outputRange: [0, 200],
         extrapolate: 'clamp'
     });
     let index = 1;
@@ -119,37 +119,42 @@ export default class ScanScreen extends React.Component {
     let entitiesInfo = <Spinner color='white'/>;
 
     if(stats){
-      const shareMessage = <Text key="shareMessage" style={{color: "#AAA", fontSize: 8, textAlign: "center"}}>tap to share</Text>
-      const mainEntity = <StyledText key="mainEntity" style={{marginBottom: 10, fontSize: 24, textAlign: "center", color: "white"}}>
-                      {stats.mainEntity}
-                    </StyledText>;
-      const headerSection = (<View key={"headerSection" + index} style={{flexDirection: "row"}}>
-                <Text key="headerSectionIndex" style={{textAlign: "left", fontSize: 10, color: "#AAA", marginRight: 10}}> # </Text>
-                <Text key="headerSectionDescription" style={{flex: 1, textAlign: "left",  fontSize: 10, color: "#AAA"}}>{DESCRIPTOR}</Text>
-                <Text key="headerSectionScore" style={{flex: 1, textAlign: "right",  fontSize: 10, color: "#AAA"}}>Confidence</Text>
-              </View>);
+      if(stats.mainEntity) {
+        const shareMessage = <Text key="shareMessage" style={{color: "#AAA", fontSize: 8, textAlign: "center"}}>tap to share</Text>
 
-      const succefulEntitiesList = stats.entities.map((entity) => {
-          return (<View key={"entityList" + entity.rank} style={{flexDirection: "row"}}>
-                    <Text key="index" style={{color: "white", marginRight: 10}}>{entity.rank}:</Text>
-                    <Text key="description" style={{color: "white", flex: 1}}>{entity.description}</Text>
-                    <Text key="score" style={{color: "#DDD", marginLeft: 10}}>{entity.confidence}%</Text>
-                  </View>);
-      });
+        const mainEntity = <StyledText key="mainEntity" style={{marginBottom: 10, fontSize: 24, textAlign: "center", color: "white"}}>
+                        {stats.mainEntity}
+                      </StyledText>;
+        const headerSection = (<View key={"headerSection" + index} style={{flexDirection: "row"}}>
+                  <Text key="headerSectionIndex" style={{textAlign: "left", fontSize: 10, color: "#AAA", marginRight: 10}}> # </Text>
+                  <Text key="headerSectionDescription" style={{flex: 1, textAlign: "left",  fontSize: 10, color: "#AAA"}}>{DESCRIPTOR}</Text>
+                  <Text key="headerSectionScore" style={{flex: 1, textAlign: "right",  fontSize: 10, color: "#AAA"}}>Confidence</Text>
+                </View>);
 
-      entitiesInfo = mainEntity ?
-        <View style={{width: 230, paddingTop: 5}}>
-
-          {shareMessage}
-          {mainEntity}
-          {headerSection}
-          {succefulEntitiesList}
-        </View> :
-        <View  style={{flex: 1, padding: 20, justifyContent: "center", alignItems: "center"}}>
-          <Text style={{fontSize: 18, textAlign: "center", color: "white"}}>
-            Unable to identify {Descriptor.toLowerCase()}. Try again with a clearer picture.
-          </Text>
-        </View>
+        const succefulEntitiesList = stats.entities.map((entity) => {
+            return (<View key={"entityList" + entity.rank} style={{flexDirection: "row"}}>
+                      <Text key="index" style={{color: "white", marginRight: 10}}>{entity.rank}:</Text>
+                      <Text key="description" style={{color: "white", flex: 1}}>{entity.description}</Text>
+                      <Text key="score" style={{color: "#DDD", marginLeft: 10}}>{entity.confidence}%</Text>
+                    </View>);
+        });
+        entitiesInfo = (
+          <View style={{width: 230, paddingTop: 5}}>
+            {shareMessage}
+            {mainEntity}
+            {headerSection}
+            {succefulEntitiesList}
+          </View>
+        );
+      }else {
+        entitiesInfo = (
+          <View  style={{flex: 1, padding: 20, justifyContent: "center", alignItems: "center"}}>
+            <Text style={{fontSize: 18, textAlign: "center", color: "white"}}>
+              {`Unable to identify ${DESCRIPTOR.toLowerCase()}. Try again with a clearer picture.`}
+            </Text>
+          </View>
+        );
+      }
     }
 
     return (
@@ -158,7 +163,7 @@ export default class ScanScreen extends React.Component {
           onPress={this._share}
           onLongPress={this._share}
           style={{
-          marginTop: 30,
+          marginTop: 10,
           width: 250,
           borderRadius: 3,
           elevation: 4,
@@ -171,7 +176,7 @@ export default class ScanScreen extends React.Component {
             style={{borderTopRightRadius: 3, borderTopLeftRadius: 3, overflow: 'hidden'}}>
             <Image
               source={{uri: image}}
-              style={{width: 250, height: 250}}
+              style={{width: 250, height: 200}}
             />
           </View>
           <Animated.View key="infoDrawer"
@@ -204,7 +209,7 @@ export default class ScanScreen extends React.Component {
         marginTop: 30,
         flexDirection: "row",
         width: 250,
-        height: 250,
+        height: 200,
         borderRadius: 3,
         borderWidth: 5,
         borderStyle: "dashed",
@@ -213,7 +218,7 @@ export default class ScanScreen extends React.Component {
         <TouchableOpacity
           key="takePhoto"
           onPress={this._pickImage}
-          style={{height: 250, width: 125, overflow: 'hidden'}}>
+          style={{height: 200, width: 125, overflow: 'hidden'}}>
           <View style={{padding: 10, flex: 1, justifyContent: "center", alignItems: "center"}}>
             <Ionicons key="uploadIcon" style={{backgroundColor: "transparent"}} name="ios-cloud-upload" size={64} color="white" />
             <Text key="uploadText"
@@ -225,7 +230,7 @@ export default class ScanScreen extends React.Component {
         <TouchableOpacity
           key="uploadPhoto"
           onPress={this._takePhoto}
-          style={{height: 250, width: 125, overflow: 'hidden'}}>
+          style={{height: 200, width: 125, overflow: 'hidden'}}>
           <View style={{padding: 10, flex: 1, justifyContent: "center", alignItems: "center"}}>
             <Ionicons key="cameraIcon" style={{backgroundColor: "transparent"}} name="ios-camera" size={64} color="white" />
             <Text key="cameraText"
@@ -239,7 +244,8 @@ export default class ScanScreen extends React.Component {
   }
 
   _parseStats = (entities) => {
-    let calculatedStats, totalScore = 0;
+    let calculatedStats = {}
+    let totalScore = 0;
     let index = 1;
     entities.forEach((entity) => {
       if(whiteList.indexOf(entity.description.replace(/dog/ig,"").trim()) >= 0 &&
@@ -256,7 +262,7 @@ export default class ScanScreen extends React.Component {
         });
       }
     });
-    if(calculatedStats.entities) {
+    if(calculatedStats && calculatedStats.entities) {
       calculatedStats.entities.forEach((stat) => totalScore += stat.score || 0);
       calculatedStats.entities.forEach((stat) => stat.confidence = (((stat.score || 0) / totalScore) * 100).toFixed(2));
     }
